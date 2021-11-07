@@ -8,4 +8,4 @@
  */
 
 rootProject.name = "java-fn"
-include("lib")
+include("pg-java-fn")
