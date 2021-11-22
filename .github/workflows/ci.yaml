@@ -17,6 +17,14 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Generate Javadocs
+        run: ./gradlew generateJavaDocs
+      - name: Deploy to Github Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages
+          folder: pg-java-fn/build/docs/javadoc
+          target-folder: javadoc
       - uses: actions/upload-artifact@v2
         with:
           name: pg-java-fn

@@ -53,11 +53,27 @@ public class ImListImpl<E> implements ImList<E>, List<E> {
     return streamGen.get();
   }
 
+  /**
+   * Create a list from another list. The new list will be distinct from the input
+   * list, but they will share references to the same objects. It is important to
+   * ensure that the objects within each list are not mutated.
+   * 
+   * @param <E>   the type of elements in the list
+   * @param other a list to copy
+   * @return a new list that is a copy of the existing lists
+   */
   public static <E> ImListImpl<E> of(ImList<E> other) {
     Objects.requireNonNull(other, "Non-null list required");
     return new ImListImpl<>(() -> other.stream(), other.size());
   }
 
+  /**
+   * Create a list from a set of elements.
+   * 
+   * @param <E>      the type of the elements
+   * @param elements the elements for ths list
+   * @return an immutable list containing the specified elements
+   */
   @SafeVarargs
   public static <E> ImListImpl<E> of(E... elements) {
     Objects.requireNonNull(elements, "Non-null array required");
@@ -67,6 +83,12 @@ public class ImListImpl<E> implements ImList<E>, List<E> {
     );
   }
 
+  /**
+   * Create an empty list.
+   * 
+   * @param <E> the type of elements (that would be) in the list
+   * @return an empty list
+   */
   @SuppressWarnings("unchecked")
   public static <E> ImListImpl<E> emptyList() {
     return (ImListImpl<E>) EMPTY_LIST;
@@ -77,18 +99,16 @@ public class ImListImpl<E> implements ImList<E>, List<E> {
     return size == 0;
   }
 
-  @SuppressWarnings("unchecked")
   public boolean equals(Object other) {
     if (other == null)
       return false;
     if (!(other instanceof ImList))
       return false;
-    @SuppressWarnings("rawtypes")
-    ImList oList = (ImList) other;
+    ImList<?> oList = (ImList<?>) other;
     if (size != oList.size())
       return false;
     return StreamUtils
-      .<E, Object>zip(streamGen.get(), oList.stream())
+      .zip(streamGen.get(), oList.stream())
       .allMatch(pair -> Objects.equals(pair.getA(), pair.getB()));
   }
 
@@ -129,7 +149,7 @@ public class ImListImpl<E> implements ImList<E>, List<E> {
   @Override
   public int indexOf(Object o) {
     return StreamUtils
-      .zip(StreamUtils.sequence(0), streamGen.get())
+      .zip(StreamUtils.integers(0), streamGen.get())
       .filter(item -> item.getB().equals(o))
       .findFirst()
       .map(Tuples.Two::getA)
@@ -139,7 +159,7 @@ public class ImListImpl<E> implements ImList<E>, List<E> {
   @Override
   public int lastIndexOf(Object o) {
     return StreamUtils
-      .zip(StreamUtils.sequence(0), streamGen.get())
+      .zip(StreamUtils.integers(0), streamGen.get())
       .filter(item -> item.getB().equals(o))
       .map(Tuples.Two::getA)
       .reduce(Math::max)
@@ -175,7 +195,7 @@ public class ImListImpl<E> implements ImList<E>, List<E> {
           + ", " + toIndex + ")"
       );
     return StreamUtils
-      .zip(StreamUtils.sequence(0), streamGen.get())
+      .zip(StreamUtils.integers(0), streamGen.get())
       .dropWhile(two -> two.getA() < fromIndex)
       .takeWhile(two -> two.getA() < toIndex)
       .map(Tuples.Two::getB)

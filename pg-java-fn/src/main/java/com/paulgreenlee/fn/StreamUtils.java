@@ -4,34 +4,59 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.paulgreenlee.fn.Tuples.Two;
 
+/**
+ * Helper functions for working with Streams.
+ * 
+ * @author Paul Greenlees
+ *
+ */
 public class StreamUtils {
 
   private StreamUtils() {
 
   }
 
+  /**
+   * Put a single element at the beginning of a stream.
+   * 
+   * @param <E>    the type of elements in the stream
+   * @param stream a stream
+   * @param elem   the element to be placed at the start
+   * @return a new stream that contains the new element followed by the elements
+   *         of the other stream
+   */
   public static <E> Stream<E> append(Stream<E> stream, E elem) {
     Objects.requireNonNull(stream);
     return Stream.concat(stream, Stream.of(elem));
   }
 
+  /**
+   * Put a single element at the end of a stream.
+   * 
+   * @param <E>    the type of elements in the stream
+   * @param stream a stream
+   * @param elem   the element to be placed at the end
+   * @return a new stream that contains the elements of the exiting stream
+   *         followed by the new elements
+   */
   public static <E> Stream<E> prepend(E elem, Stream<E> stream) {
     Objects.requireNonNull(stream);
     return Stream.concat(Stream.of(elem), stream);
   }
 
   /**
+   * <p>
    * Take two streams and produces a new stream whose elements are pairs of the
    * elements from the two streams. For example, if the streams are represented as
    * {@code [a1, a2, a3, ..., an]} and {@code [b1, b2, b3, ..., bn]}, then the
-   * resulting stream will be [(a1, b1), (a2, b2), ...]. The stream will be as
-   * long as the shorter of the two streams: min (an, bn), in the example.
+   * resulting stream will be {@code [(a1, b1), (a2, b2), ...]}. The stream will
+   * be as long as the shorter of the two streams.
+   * </p>
    * 
    * @param <A> the type of the first value
    * @param <B> the type of the second value
@@ -46,7 +71,13 @@ public class StreamUtils {
     return StreamSupport.stream(Zipperator.of(as, bs), false);
   }
 
-  public static Stream<Integer> sequence(Integer start) {
+  /**
+   * Generate an infinite stream of Integers, starting at a specified value.
+   * 
+   * @param start the value to begin counting from (inclusive)
+   * @return an infinite stream of Integers counting up from the start value
+   */
+  public static Stream<Integer> integers(Integer start) {
     Objects.requireNonNull(start);
     return Stream.iterate(start, StreamUtils::inc);
   }
@@ -63,7 +94,7 @@ public class StreamUtils {
    * @param <A> the type of the first stream
    * @param <B> the type of the second stream
    * 
-   * @see {@link StreamUtils#zip} for a description of the operation
+   * @see StreamUtils#zip
    */
   public static class Zipperator<A, B>
     extends AbstractSpliterator<Tuples.Two<A, B>> {
@@ -71,6 +102,14 @@ public class StreamUtils {
     private Spliterator<A> as;
     private Spliterator<B> bs;
 
+    /**
+     * Create a Zipperator from two Spliterators
+     * 
+     * @param est                       the estimated size of the zipped stream
+     * @param additionalCharacteristics the characteristics of the Spliterator
+     * @param as                        a Spliterator
+     * @param bs                        another Spliterator
+     */
     protected Zipperator(
       long est,
       int additionalCharacteristics,
@@ -106,6 +145,15 @@ public class StreamUtils {
       }
     }
 
+    /**
+     * Create a Zipperator from two streams
+     * 
+     * @param <A> the type of the first stream
+     * @param <B> the type of the second stream
+     * @param as  the first stream
+     * @param bs  the second stream
+     * @return a Zipperator for the two streams
+     */
     public static <A, B> Zipperator<A, B> of(
       Stream<A> as,
       Stream<B> bs
@@ -123,13 +171,4 @@ public class StreamUtils {
     }
   }
 
-  public static void main(String[] args) {
-    StreamUtils
-      .zip(
-        Stream.of("A", "B", "C", "D"),
-        Stream.of("0", "1", "2", "3", "4")
-      )
-      .peek(two -> System.out.println(two))
-      .collect(Collectors.toList());
-  }
 }

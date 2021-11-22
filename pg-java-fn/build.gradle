@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+task generateJavaDocs(type: Javadoc) {
+    options.setTags(['"implSpec:a:Implementation Requirements:"'])
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
+    testImplementation("org.hamcrest:hamcrest:latest.release")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
