@@ -8,8 +8,8 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-task generateJavaDocs(type: Javadoc) {
-    options.setTags(['"implSpec:a:Implementation Requirements:"'])
+javadoc {
+	options.tags = ["implSpec:a:Implementation Requirements:"]
 }
 
 repositories {
