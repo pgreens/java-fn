@@ -18,7 +18,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Generate Javadocs
-        run: ./gradlew generateJavaDocs
+        run: ./gradlew :pg-java-fn:generateJavaDocs
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
